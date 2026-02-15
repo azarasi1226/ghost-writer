@@ -40,6 +40,8 @@ async function login(): Promise<void> {
   const html = await loginPage.text();
   const $ = cheerio.load(html);
   const redirect = $('input[name="redirect_to"]').val();
+
+  console.log("redirect_to:", html);
   if (!redirect) throw new Error("redirect_to が取得できませんでした");
 
   const res: Response = await client(`${WP}/wp-login.php`, {
