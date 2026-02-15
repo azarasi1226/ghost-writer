@@ -28,5 +28,8 @@ jobs:
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> $GITHUB_ENV
           echo "GEMINI_MODEL=${{ secrets.GEMINI_MODEL }}" >> $GITHUB_ENV
 
+      - name: Build
+        run: npx tsc main.ts
+
       - name: Run auto post script
-        run: npx ts-node main.ts
+        run: node main.js
