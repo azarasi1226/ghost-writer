@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 
 const WP = "https://kojinjigyou.org";
 const USER = "azarasikazuki@gmail.com";
-const PASS = "sealsoft2022";
+const PASS = "ealsoft2022";
 
 const jar = new CookieJar();
 const client = fetchCookie(fetch, jar);
@@ -17,6 +17,9 @@ type Article = {
   content: string;
 };
 
+/**
+ * WordPressにログインする（リダイレクトで成功判定、エラー時は詳細表示）
+ */
 async function login(): Promise<void> {
   const loginPage = await client(`${WP}/wp-login.php`);
   const html = await loginPage.text();
@@ -51,6 +54,9 @@ async function login(): Promise<void> {
   throw new Error(`ログイン失敗: 予期しないステータス ${res.status}`);
 }
 
+/**
+ * WordPress管理画面からnonce（API用トークン）を取得する
+ */
 async function getNonce(): Promise<string> {
   const admin = await client(`${WP}/wp-admin/post-new.php`);
   const html = await admin.text();
@@ -64,6 +70,9 @@ async function getNonce(): Promise<string> {
   return match[1];
 }
 
+/**
+ * Gemini APIで記事を自動生成する（JSON形式でタイトル・本文を取得）
+ */
 async function generateArticle(topic: string): Promise<Article> {
   console.log(`📝 記事を生成中... テーマ: 「${topic}」`);
 
@@ -102,6 +111,9 @@ async function generateArticle(topic: string): Promise<Article> {
   }
 }
 
+/**
+ * 生成した記事をWordPress REST APIで投稿する
+ */
 async function createPost(nonce: string, article: Article): Promise<void> {
   const res = await client(`${WP}/wp-json/wp/v2/posts`, {
     method: "POST",
@@ -120,11 +132,14 @@ async function createPost(nonce: string, article: Article): Promise<void> {
   console.log(json);
 }
 
+/**
+ * 全体の処理フローを実行（ログイン→nonce取得→記事生成→投稿）
+ */
 async function main() {
   await login();
   const nonce = await getNonce();
   const article = await generateArticle("CQRS/ESやDDDについて初心者向けに解説");
-  await createPost(nonce, article);
+  //await createPost(nonce, article);
 }
 
 await main().catch(e => {
