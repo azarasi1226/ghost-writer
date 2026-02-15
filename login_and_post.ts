@@ -3,14 +3,18 @@ import { CookieJar } from "tough-cookie";
 import fetchCookie from "fetch-cookie";
 import * as cheerio from "cheerio";
 import { GoogleGenAI } from "@google/genai";
+import { config } from "dotenv";
+config();
 
-const WP = "https://kojinjigyou.org";
-const USER = "azarasikazuki@gmail.com";
-const PASS = "ealsoft2022";
+const WP = process.env.WP_URL!;
+const USER = process.env.WP_USER!;
+const PASS = process.env.WP_PASS!;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
+const GEMINI_MODEL = process.env.GEMINI_MODEL!;
 
 const jar = new CookieJar();
 const client = fetchCookie(fetch, jar);
-const ai = new GoogleGenAI({ apiKey: "AIzaSyDWegBxvh0MF5vd7IY4XvoNM53knGdxtyg" });
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 type Article = {
   title: string;
@@ -90,7 +94,7 @@ async function generateArticle(topic: string): Promise<Article> {
 テーマ: ${topic}
 `;
   const response = await ai.models.generateContent({
-    model: "models/gemini-2.5-flash-lite",
+    model: GEMINI_MODEL,
     contents: prompt,
   });
 
