@@ -77,21 +77,20 @@ async function getNonce(): Promise<string> {
 /**
  * Gemini APIで記事を自動生成する（JSON形式でタイトル・本文を取得）
  */
-async function generateArticle(topic: string): Promise<Article> {
-  console.log(`📝 記事を生成中... テーマ: 「${topic}」`);
+async function generateArticle(): Promise<Article> {
+  console.log(`📝 記事を生成中...`);
 
   const prompt = `
 あなたはプロのブログライターです。
 以下のルールに従って記事を作成してください
 
+- テーマはコンピューターサイエンス、プログラムミング、ソフトウェアアーキテクチャなどIT技術系全般とし、完全にランダムに選んでください
 - タイトルと本文をJSON形式で返す
 - 本文はHTMLタグ（<h2>, <h3>, <p>, <ul>, <li> 等）を使って構造化する
-- 300文字程度の記事にする
+- 500文字程度の記事にする
 - SEOを意識した自然な文章にする
 - レスポンスはこのJSON構造にて返す。 {"title": "記事タイトル", "content": "記事本文"}
-- コードブロックは使わないでください。純粋なJSONテキストのみを返してください。そのままJSONとしてパースします。
-
-テーマ: ${topic}
+- コードブロックは使わないでください。純粋なJSONテキストのみを返してください。そのままJSONとしてパースし、後続の処理で使うためです。
 `;
   const response = await ai.models.generateContent({
     model: GEMINI_MODEL,
@@ -142,7 +141,7 @@ async function createPost(nonce: string, article: Article): Promise<void> {
 async function main() {
   await login();
   const nonce = await getNonce();
-  const article = await generateArticle("CQRS/ESやDDDについて初心者向けに解説");
+  const article = await generateArticle();
   //await createPost(nonce, article);
 }
 
