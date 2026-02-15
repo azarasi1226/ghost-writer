@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "start": "npx ts-node main.ts"
+    "start": "tsx main.ts"
   },
   "dependencies": {
     "@google/genai": "^1.41.0",
