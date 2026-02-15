@@ -71,7 +71,7 @@ async function getNonce(): Promise<string> {
   if (!match) throw new Error("nonce取得失敗");
 
   console.log("✅ nonce取得成功");
-  return match[1];
+  return match[1]!;
 }
 
 /**
