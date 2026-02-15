@@ -131,8 +131,13 @@ async function createPost(nonce: string, article: Article): Promise<void> {
     })
   });
 
-  const json = await res.json();
-  console.log(json);
+  if (res.ok) {
+    console.log("✅ 記事投稿完了");
+  } else {
+    const errorText = await res.text();
+    console.error(`❌ 記事投稿失敗: status=${res.status} body=${errorText}`);
+    throw new Error(`記事投稿失敗: status=${res.status}`);
+  }
 }
 
 /**
@@ -142,7 +147,7 @@ async function main() {
   await login();
   const nonce = await getNonce();
   const article = await generateArticle();
-  //await createPost(nonce, article);
+  await createPost(nonce, article);
 }
 
 await main().catch(e => {
