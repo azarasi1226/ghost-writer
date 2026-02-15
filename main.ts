@@ -21,6 +21,16 @@ type Article = {
   content: string;
 };
 
+function check(name: string) {
+  console.log(name, process.env[name] ? "OK" : "MISSING");
+}
+
+check("WP_URL");
+check("WP_USER");
+check("WP_PASS");
+check("GEMINI_API_KEY");
+check("GEMINI_MODEL");
+
 /**
  * WordPressにログインする（リダイレクトで成功判定、エラー時は詳細表示）
  */
