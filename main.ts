@@ -22,6 +22,7 @@ type Article = {
 };
 
 function check(name: string) {
+  console.log(process.env[name])
   console.log(name, process.env[name] ? "OK" : "MISSING");
 }
 
