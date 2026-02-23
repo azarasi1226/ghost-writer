@@ -18,4 +18,11 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+
+  default_tags {
+    tags = {
+      Project   = "ghost-writer"
+      ManagedBy = "terraform"
+    }
+  }
 }

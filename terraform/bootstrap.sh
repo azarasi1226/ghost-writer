@@ -23,6 +23,10 @@ else
   echo "  → 作成しました"
 fi
 
+aws s3api put-bucket-tagging \
+  --bucket "$BUCKET" \
+  --tagging 'TagSet=[{Key=Project,Value=ghost-writer},{Key=ManagedBy,Value=manual}]'
+
 aws s3api put-bucket-versioning \
   --bucket "$BUCKET" \
   --versioning-configuration Status=Enabled
@@ -53,6 +57,10 @@ else
   echo "  → 作成しました"
 fi
 
+aws iam tag-open-id-connect-provider \
+  --open-id-connect-provider-arn "$OIDC_ARN" \
+  --tags '[{"Key":"Project","Value":"ghost-writer"},{"Key":"ManagedBy","Value":"manual"}]'
+
 # --- IAM ロール ---
 echo "=== GitHub Actions IAM ロール ==="
 if aws iam get-role --role-name "$ROLE_NAME" 2>/dev/null | grep -q RoleName; then
@@ -82,6 +90,10 @@ EOF
     --assume-role-policy-document "$TRUST_POLICY"
   echo "  → 作成しました"
 fi
+
+aws iam tag-role \
+  --role-name "$ROLE_NAME" \
+  --tags '[{"Key":"Project","Value":"ghost-writer"},{"Key":"ManagedBy","Value":"manual"}]'
 
 # --- IAM ポリシー（常に上書き） ---
 echo "=== デプロイ権限ポリシー ==="
