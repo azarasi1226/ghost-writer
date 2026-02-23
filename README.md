@@ -6,77 +6,57 @@ Gemini を使って WordPress に自動投稿する Lambda 関数。EventBridge 
 
 ```
 ghost-writer/
-├── src/          # TypeScript ソースコード
-├── dist/         # ビルド成果物（git 管理外）
-└── terraform/    # AWS インフラ定義
+├── src/               # TypeScript ソースコード
+├── dist/              # ビルド成果物（git 管理外）
+└── terraform/
+    ├── bootstrap.sh   # tfstate 管理用リソース作成スクリプト（初回のみ手動実行）
+    └── *.tf           # AWS インフラ定義
 ```
 
-## 初回セットアップ（ローカルで一度だけ実行）
+---
+
+## 初回セットアップ
 
 ### 前提条件
 
-- Node.js 22
-- Terraform >= 1.5
 - AWS CLI（管理者権限のクレデンシャル設定済み）
 
-### 1. 依存パッケージのインストール＆ビルド
+### 1. bootstrap を実行
+
+S3 バケット・OIDC プロバイダー・GitHub Actions IAM ロールを作成する。
 
 ```bash
-cd src
-npm install
-npm run build
+bash terraform/bootstrap.sh
 ```
 
-### 2. Terraform 変数ファイルを作成
+> S3 バケット名 `ghost-writer-tfstate`（`terraform/bootstrap.sh` の `BUCKET`）はグローバルユニークである必要がある。
+> 変更した場合は `terraform/main.tf` の `backend "s3"` の `bucket` も合わせて変更すること。
 
-```bash
-cp terraform/terraform.tfvars.example terraform/terraform.tfvars
-# terraform.tfvars を編集して各値を設定
-```
+### 2. GitHub Secrets / Variables を設定
 
-`terraform/terraform.tfvars`:
-```hcl
-wp_user        = "your-wordpress-username"
-wp_pass        = "your-wordpress-password"
-gemini_api_key = "your-gemini-api-key"
-alert_email    = "your@email.com"
-```
+**Secrets**（Settings → Secrets and variables → Actions → Secrets）:
 
-### 3. Terraform を実行
+| シークレット名   | 値                                        |
+| ---------------- | ----------------------------------------- |
+| `AWS_ROLE_ARN`   | bootstrap.sh の出力値                     |
+| `WP_USER`        | WordPress ユーザー名                      |
+| `WP_PASS`        | WordPress パスワード                      |
+| `GEMINI_API_KEY` | Gemini API キー                           |
 
-```bash
-cd terraform
-terraform init
-terraform apply
-```
+**Variables**（同じページの Variables タブ）:
 
-### 4. GitHub Secrets / Variables を設定
+| 変数名         | 値                             |
+| -------------- | ------------------------------ |
+| `GEMINI_MODEL` | `models/gemini-2.5-flash-lite` |
+| `ALERT_EMAIL`  | エラー通知先メールアドレス     |
 
-`terraform apply` 完了後に表示される `github_actions_role_arn` の値を控える。
+### 3. main ブランチに push
 
-```bash
-terraform output github_actions_role_arn
-```
+GitHub Actions が自動的にビルド・`terraform init`・`terraform apply` を実行する。
 
-**GitHub Secrets**（Settings → Secrets and variables → Actions → Secrets）:
+### 4. SNS メール通知の承認
 
-| シークレット名      | 値                                         |
-| ------------------- | ------------------------------------------ |
-| `AWS_ROLE_ARN`      | `terraform output github_actions_role_arn` の値 |
-| `WP_USER`           | WordPress ユーザー名                       |
-| `WP_PASS`           | WordPress パスワード                       |
-| `GEMINI_API_KEY`    | Gemini API キー                            |
-
-**GitHub Variables**（同じページの Variables タブ）:
-
-| 変数名          | 値                              |
-| --------------- | ------------------------------- |
-| `GEMINI_MODEL`  | `models/gemini-2.5-flash-lite`  |
-| `ALERT_EMAIL`   | エラー通知先メールアドレス      |
-
-### 5. SNS メール通知の承認
-
-`terraform apply` 後に通知先メールアドレス宛に AWS から確認メールが届く。
+デプロイ後に通知先メールアドレス宛に AWS から確認メールが届く。
 メール内のリンクをクリックして購読を承認する（これをしないとエラー通知が届かない）。
 
 ---
@@ -103,9 +83,9 @@ npm test
 
 ## 環境変数（Lambda）
 
-| 変数名          | 説明                    |
-| --------------- | ----------------------- |
-| `WP_USER`       | WordPress ユーザー名    |
-| `WP_PASS`       | WordPress パスワード    |
-| `GEMINI_API_KEY`| Gemini API キー         |
-| `GEMINI_MODEL`  | 使用する Gemini モデル  |
+| 変数名          | 説明                   |
+| --------------- | ---------------------- |
+| `WP_USER`       | WordPress ユーザー名   |
+| `WP_PASS`       | WordPress パスワード   |
+| `GEMINI_API_KEY`| Gemini API キー        |
+| `GEMINI_MODEL`  | 使用する Gemini モデル |

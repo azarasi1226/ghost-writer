@@ -6,6 +6,14 @@ terraform {
       version = "~> 6.33.0"
     }
   }
+
+  backend "s3" {
+    bucket       = "ghost-writer-tfstate"
+    key          = "terraform.tfstate"
+    region       = "ap-northeast-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {
