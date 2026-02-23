@@ -3,6 +3,7 @@
 # 既存リソースはスキップするため、再実行しても安全
 
 set -euo pipefail
+export AWS_PAGER=""
 
 REGION="ap-northeast-1"
 GITHUB_REPO="azarasi1226/ghost-writer"
