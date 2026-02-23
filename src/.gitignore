@@ -1,0 +1,21 @@
+# 依存パッケージ
+node_modules/
+
+# 環境変数
+.env
+.env.*
+!.env.example
+
+# TypeScript キャッシュ
+*.tsbuildinfo
+
+# ログ
+*.log
+npm-debug.log*
+
+# npm キャッシュ
+.npm
+
+# リンターキャッシュ
+.eslintcache
+.stylelintcache
