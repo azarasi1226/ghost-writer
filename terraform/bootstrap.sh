@@ -122,7 +122,8 @@ DEPLOY_POLICY=$(cat <<EOF
         "logs:DescribeLogGroups",
         "logs:DeleteLogGroup",
         "logs:PutRetentionPolicy",
-        "logs:TagResource"
+        "logs:TagResource",
+        "logs:ListTagsForResource"
       ],
       "Resource": "*"
     },
