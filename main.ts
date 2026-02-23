@@ -24,13 +24,7 @@ type Article = {
  * WordPressにログインする（リダイレクトで成功判定、エラー時は詳細表示）
  */
 async function login(): Promise<void> {
-  const loginPage = await client(`${WP}/wp-login.php`);
-  const html = await loginPage.text();
-  const $ = cheerio.load(html);
-  const redirectRaw = $('input[name="redirect_to"]').val();
-  const redirect = Array.isArray(redirectRaw) ? redirectRaw[0] : redirectRaw;
-
-  if (!redirect) throw new Error("redirect_to が取得できませんでした");
+  await client(`${WP}/wp-login.php`); // テスト用Cookieを受け取る（WordPressの必須チェック）
 
   const res = await client(`${WP}/wp-login.php`, {
     method: "POST",
@@ -39,7 +33,7 @@ async function login(): Promise<void> {
     body: new URLSearchParams({
       log: USER,
       pwd: PASS,
-      redirect_to: redirect,
+      redirect_to: "/wp-admin/",
       testcookie: "1"
     })
   });
@@ -49,6 +43,7 @@ async function login(): Promise<void> {
     return;
   }
 
+  //ワードプレスのログイン失敗はステータス200で返ってくるため、bodyを解析してエラー内容を取得する
   const body = await res.text();
   if (body.includes("login_error")) {
     const $body = cheerio.load(body);
@@ -56,7 +51,8 @@ async function login(): Promise<void> {
     throw new Error(`ログイン失敗: ${error}`);
   }
 
-  throw new Error(`ログイン失敗: 予期しないステータス ${res.status}`);
+  // 解析不能なので、すべてを出力する
+  throw new Error(`ログイン失敗: 予期しないステータス ${res.status} body=${body}`);
 }
 
 /**
@@ -83,7 +79,7 @@ async function generateArticle(): Promise<Article> {
 あなたはプロのブログライターです。
 以下のルールに従って記事を作成してください
 
-- テーマはコンピューターサイエンス、プログラムミング、ソフトウェアアーキテクチャなどIT技術系全般とし、完全にランダムに選んでください
+- テーマはコンピューターサイエンス、プログラミング、ソフトウェアアーキテクチャなどIT技術系全般とし、完全にランダムに選んでください
 - タイトルと本文をJSON形式で返す
 - 本文はHTMLタグ（<h2>, <h3>, <p>, <ul>, <li> 等）を使って構造化する
 - 500文字程度の記事にする
@@ -97,16 +93,20 @@ async function generateArticle(): Promise<Article> {
     contents: prompt,
   });
 
-  const text = (response.text?.trim() ?? "").replace(/^```(?:json)?\s*/i, "").replace(/```$/, "").trim();
+  const text = (response.text?.trim() ?? "").replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
 
+  if (!text) throw new Error("Geminiからの応答が空でした");
+
+  let article: Article;
   try {
-    const article: Article = JSON.parse(text);
-    console.log(`✅ 記事生成完了: 「${article.title}」`);
-    return article;
-  } catch (e) {
-    console.error("❌ Geminiレスポンスのパース失敗:", text);
-    throw e;
+    article = JSON.parse(text);
+  } catch {
+    throw new Error(`Geminiレスポンスのパース失敗: ${text}`);
   }
+
+  if (!article.title || !article.content) throw new Error("不正なレスポンス構造");
+  console.log(`✅ 記事生成完了: 「${article.title}」`);
+  return article;
 }
 
 /**
@@ -119,19 +119,14 @@ async function createPost(nonce: string, article: Article): Promise<void> {
       "Content-Type": "application/json",
       "X-WP-Nonce": nonce
     },
-    body: JSON.stringify({
-      title: article.title,
-      content: article.content,
-      status: "publish"
-    })
+    body: JSON.stringify({ ...article, status: "publish" })
   });
 
   if (res.ok) {
     console.log("✅ 記事投稿完了");
   } else {
     const errorText = await res.text();
-    console.error(`❌ 記事投稿失敗: status=${res.status} body=${errorText}`);
-    throw new Error(`記事投稿失敗: status=${res.status}`);
+    throw new Error(`記事投稿失敗: status=${res.status} body=${errorText}`);
   }
 }
 
