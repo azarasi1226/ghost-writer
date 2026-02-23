@@ -143,6 +143,14 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+# Terraform
+terraform/lambda.zip
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfvars
+
 # Claude Code
 .claude/settings.local.json
 .claude/CLAUDE.local.md
