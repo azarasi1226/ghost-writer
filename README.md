@@ -1,4 +1,5 @@
 # 👻ghost-writer
+[![Deploy](https://github.com/azarasi1226/ghost-writer/actions/workflows/deploy.yml/badge.svg)](https://github.com/azarasi1226/ghost-writer/actions/workflows/deploy.yml)
 Gemini を使って WordPress に自動投稿する Lambda 関数。EventBridge Scheduler で定期実行。
 
 ## ディレクトリ構成
