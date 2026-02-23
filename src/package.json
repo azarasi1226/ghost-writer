@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "build": "esbuild main.ts --bundle --platform=node --format=esm --external:dotenv --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=../dist/main.js",
+    "build": "node esbuild.config.mjs",
     "test": "tsx -e \"import('./main.ts').then(m => m.handler())\""
   },
   "dependencies": {
