@@ -5,7 +5,7 @@ import fetchCookie from "fetch-cookie";
 import * as cheerio from "cheerio";
 import { GoogleGenAI } from "@google/genai";
 
-const WP = process.env.WP_URL!;
+const WP = "https://kojinjigyou.org";
 const USER = process.env.WP_USER!;
 const PASS = process.env.WP_PASS!;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
@@ -82,9 +82,9 @@ async function generateArticle(): Promise<Article> {
 - テーマはコンピューターサイエンス、プログラミング、ソフトウェアアーキテクチャなどIT技術系全般とし、完全にランダムに選んでください
 - タイトルと本文をJSON形式で返す
 - 本文はHTMLタグ（<h2>, <h3>, <p>, <ul>, <li> 等）を使って構造化する
-- 500文字程度の記事にする
+- 1000文字程度の記事にする
 - SEOを意識した自然な文章にする
-- レスポンスはこのJSON構造にて返す。 {"title": "記事タイトル", "content": "記事本文"}
+- レスポンスは次のJSON構造にて返す。 {"title": "記事タイトル", "content": "記事本文"}
 - コードブロックは使わないでください。純粋なJSONテキストのみを返してください。そのままJSONとしてパースし、後続の処理で使うためです。
 `;
 
@@ -131,7 +131,7 @@ async function createPost(nonce: string, article: Article): Promise<void> {
 }
 
 /**
- * 全体の処理フローを実行（ログイン→nonce取得→記事生成→投稿）
+ * エントリーポイント
  */
 export async function handler(): Promise<void> {
   await login();
