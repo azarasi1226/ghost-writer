@@ -1,10 +1,9 @@
-import fetch, { Response } from "node-fetch";
+import "dotenv/config";
+import fetch from "node-fetch";
 import { CookieJar } from "tough-cookie";
 import fetchCookie from "fetch-cookie";
 import * as cheerio from "cheerio";
 import { GoogleGenAI } from "@google/genai";
-import { config } from "dotenv";
-config();
 
 const WP = process.env.WP_URL!;
 const USER = process.env.WP_USER!;
@@ -21,17 +20,6 @@ type Article = {
   content: string;
 };
 
-function check(name: string) {
-  console.log(process.env[name])
-  console.log(name, process.env[name] ? "OK" : "MISSING");
-}
-
-check("WP_URL");
-check("WP_USER");
-check("WP_PASS");
-check("GEMINI_API_KEY");
-check("GEMINI_MODEL");
-
 /**
  * WordPressにログインする（リダイレクトで成功判定、エラー時は詳細表示）
  */
@@ -39,18 +27,19 @@ async function login(): Promise<void> {
   const loginPage = await client(`${WP}/wp-login.php`);
   const html = await loginPage.text();
   const $ = cheerio.load(html);
-  const redirect = $('input[name="redirect_to"]').val();
+  const redirectRaw = $('input[name="redirect_to"]').val();
+  const redirect = Array.isArray(redirectRaw) ? redirectRaw[0] : redirectRaw;
 
   if (!redirect) throw new Error("redirect_to が取得できませんでした");
 
-  const res: Response = await client(`${WP}/wp-login.php`, {
+  const res = await client(`${WP}/wp-login.php`, {
     method: "POST",
     redirect: "manual",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       log: USER,
       pwd: PASS,
-      redirect_to: redirect as string,
+      redirect_to: redirect,
       testcookie: "1"
     })
   });
@@ -76,9 +65,7 @@ async function login(): Promise<void> {
 async function getNonce(): Promise<string> {
   const admin = await client(`${WP}/wp-admin/post-new.php`);
   const html = await admin.text();
-
-  const match =
-    html.match(/wpApiSettings\s*=\s*\{[^}]*"nonce"\s*:\s*"([a-f0-9]+)"/);
+  const match = html.match(/wpApiSettings\s*=\s*\{[^}]*"nonce"\s*:\s*"([a-f0-9]+)"/);
 
   if (!match) throw new Error("nonce取得失敗");
 
@@ -90,7 +77,7 @@ async function getNonce(): Promise<string> {
  * Gemini APIで記事を自動生成する（JSON形式でタイトル・本文を取得）
  */
 async function generateArticle(): Promise<Article> {
-  console.log(`📝 記事を生成中...`);
+  console.log("📝 記事を生成中...");
 
   const prompt = `
 あなたはプロのブログライターです。
@@ -104,20 +91,16 @@ async function generateArticle(): Promise<Article> {
 - レスポンスはこのJSON構造にて返す。 {"title": "記事タイトル", "content": "記事本文"}
 - コードブロックは使わないでください。純粋なJSONテキストのみを返してください。そのままJSONとしてパースし、後続の処理で使うためです。
 `;
+
   const response = await ai.models.generateContent({
     model: GEMINI_MODEL,
     contents: prompt,
   });
 
-   // コードブロック除去
-  let text = response.text?.trim() ?? "";
-  if (text.startsWith("```")) {
-    text = text.replace(/^```json\s*/i, "").replace(/^```/, "").replace(/```$/, "").trim();
-  }
-
+  const text = (response.text?.trim() ?? "").replace(/^```(?:json)?\s*/i, "").replace(/```$/, "").trim();
 
   try {
-    let article: Article = JSON.parse(text);
+    const article: Article = JSON.parse(text);
     console.log(`✅ 記事生成完了: 「${article.title}」`);
     return article;
   } catch (e) {
@@ -155,7 +138,7 @@ async function createPost(nonce: string, article: Article): Promise<void> {
 /**
  * 全体の処理フローを実行（ログイン→nonce取得→記事生成→投稿）
  */
-export async function handler(){
+export async function handler(): Promise<void> {
   await login();
   const nonce = await getNonce();
   const article = await generateArticle();
