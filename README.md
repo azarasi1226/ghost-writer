@@ -26,13 +26,13 @@
 - Terraform
 
 ### 1. bootstrap.sh を実行
-
 * s3 - terraform state保管用
 * iam role - github actionsからの認証用
 
 上記を作成するためのシェルスクリプトを実行します。
 ```bash
-bash terraform/bootstrap.sh
+bash terraform/bootstrap.sh --repo <owner>/<repo>
+# 例: bash terraform/bootstrap.sh --repo azarasi1226/ghost-writer
 ```
 
 ### 2. GitHub Secrets / Variables を設定

@@ -5,8 +5,31 @@
 set -euo pipefail
 export AWS_PAGER=""
 
+GITHUB_REPO=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo)
+      GITHUB_REPO="$2"
+      shift 2
+      ;;
+    *)
+      echo "不明なオプション: $1" >&2
+      echo "使い方: $0 --repo <owner>/<repo>" >&2
+      echo "例:     $0 --repo azarasi1226/ghost-writer" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$GITHUB_REPO" ]]; then
+  echo "エラー: --repo オプションは必須です" >&2
+  echo "使い方: $0 --repo <owner>/<repo>" >&2
+  echo "例:     $0 --repo azarasi1226/ghost-writer" >&2
+  exit 1
+fi
+
 REGION="ap-northeast-1"
-GITHUB_REPO="azarasi1226/ghost-writer"
 ROLE_NAME="ghost-writer-github-actions"
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
