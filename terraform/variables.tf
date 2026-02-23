@@ -22,3 +22,7 @@ variable "gemini_model" {
   description = "使用するGeminiモデル"
   default     = "models/gemini-2.5-flash-lite"
 }
+
+variable "alert_email" {
+  description = "Lambda失敗時の通知先メールアドレス"
+}

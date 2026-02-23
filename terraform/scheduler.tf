@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "scheduler_invoke_lambda" {
 }
 
 resource "aws_iam_role" "scheduler" {
-  name               = "wp-auto-scheduler-role"
+  name               = "ghost-writer-scheduler-role"
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
 }
 
@@ -27,7 +27,7 @@ resource "aws_iam_role_policy" "scheduler_invoke" {
 }
 
 resource "aws_scheduler_schedule" "wp_auto" {
-  name       = "wp-auto-schedule"
+  name       = "ghost-writer-schedule"
   group_name = "default"
 
   # 3日ごとの6時に起点を置き、flexible_time_windowで6〜10時のランダムな時刻に実行

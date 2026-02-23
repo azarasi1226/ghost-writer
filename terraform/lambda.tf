@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 }
 
 resource "aws_iam_role" "lambda" {
-  name               = "wp-auto-lambda-role"
+  name               = "ghost-writer-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
@@ -38,7 +38,7 @@ data "archive_file" "lambda_zip" {
 
 resource "aws_lambda_function" "wp_auto" {
   filename         = data.archive_file.lambda_zip.output_path
-  function_name    = "wp-auto"
+  function_name    = "ghost-writer"
   role             = aws_iam_role.lambda.arn
   handler          = "main.handler"
   runtime          = "nodejs22.x"
