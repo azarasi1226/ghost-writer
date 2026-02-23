@@ -19,6 +19,11 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/${aws_lambda_function.wp_auto.function_name}"
+  retention_in_days = 14
+}
+
 # main.jsとpackage.jsonをzipにまとめる（ESMとして認識させるためpackage.jsonが必要）
 data "archive_file" "lambda_zip" {
   type = "zip"
