@@ -60,11 +60,11 @@ resource "aws_lambda_function" "wp_auto" {
   function_name    = "ghost-writer"
   role             = aws_iam_role.lambda.arn
   handler          = "main.handler"
-  runtime          = "nodejs22.x"
+  runtime          = "nodejs24.x"
   timeout          = 60
-  memory_size      = 128
+  memory_size      = 256
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  kms_key_arn      = aws_kms_key.lambda_env.arn
+  architectures = ["arm64"] 
 
   environment {
     variables = {
