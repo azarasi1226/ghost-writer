@@ -4,12 +4,12 @@
 
 set -euo pipefail
 
-BUCKET="ghost-writer-tfstate"
 REGION="ap-northeast-1"
 GITHUB_REPO="azarasi1226/ghost-writer"
 ROLE_NAME="ghost-writer-github-actions"
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+BUCKET="ghost-writer-tfstate-${ACCOUNT_ID}"
 
 # --- S3 バケット ---
 echo "=== S3 バケット ==="
