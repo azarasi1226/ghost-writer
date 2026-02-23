@@ -134,7 +134,8 @@ DEPLOY_POLICY=$(cat <<EOF
         "lambda:UpdateFunctionCode",
         "lambda:UpdateFunctionConfiguration",
         "lambda:DeleteFunction",
-        "lambda:ListVersionsByFunction"
+        "lambda:ListVersionsByFunction",
+        "lambda:TagResource"
       ],
       "Resource": "*"
     },
