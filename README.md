@@ -46,14 +46,14 @@ bash terraform/bootstrap.sh
 
 | 変数名             | 値                             |
 | ------------------ | ------------------------------ |
-| `TF_STATE_BUCKET`  | bootstrap.shの出力地         |
-| `TF_STATE_KEY`     | bootstrap.shの出力地            |
+| `TF_STATE_BUCKET`  | bootstrap.sh の出力値          |
+| `TF_STATE_KEY`     | bootstrap.sh の出力値          |
 | `GEMINI_MODEL`     | `models/gemini-2.5-flash-lite` |
 | `ALERT_EMAIL`      | エラー通知先メールアドレス     |
 
-### 3. main ブランチに push
+### 3. GitHub Actions を手動実行
 
-GitHub Actions が自動的にビルド・`terraform init`・`terraform apply` を実行する。
+GitHub リポジトリの Actions タブ → Deploy → Run workflow → `apply` を選択して実行。
 
 ### 4. SNS メール通知の承認
 
@@ -62,18 +62,19 @@ GitHub Actions が自動的にビルド・`terraform init`・`terraform apply` �
 
 ---
 
-## 初回以降の開発フロー
+## 開発フロー
 
-`src/` または `terraform/` を変更して main ブランチに push するだけ。
-
-```
-push to main
-  → GitHub Actions が起動
-  → npm run build（src/ → dist/main.js）
-  → terraform apply（Lambda 更新 + インフラ変更を反映）
-```
+`src/` または `terraform/` を変更して main ブランチに push すると自動デプロイされる。
+手動でデプロイしたい場合は Actions タブから Run workflow で `apply` / `destroy` を選択して実行できる。
 
 ### ローカルで動作確認したい場合
+
+`.env.example` をコピーして `.env` を作成し、各値を設定する。
+
+```bash
+cp src/.env.example src/.env
+# src/.env を編集して実際の値を設定
+```
 
 ```bash
 cd src
