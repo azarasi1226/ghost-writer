@@ -159,5 +159,5 @@ ROLE_ARN="arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}"
 
 echo ""
 echo "AWS_ROLE_ARN = $ROLE_ARN"
-echo "S3_BUCKET    = $BUCKET"
+echo "S3_BUCKET    = arn:aws:s3:::$BUCKET"
 echo "S3_KEY       = terraform.tfstate"
