@@ -64,6 +64,7 @@ resource "aws_lambda_function" "wp_auto" {
   timeout          = 60
   memory_size      = 128
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  kms_key_arn      = aws_kms_key.lambda_env.arn
 
   environment {
     variables = {

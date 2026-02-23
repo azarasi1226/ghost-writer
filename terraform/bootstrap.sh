@@ -119,7 +119,8 @@ DEPLOY_POLICY=$(cat <<EOF
         "cloudwatch:*",
         "sns:*",
         "scheduler:*",
-        "logs:*"
+        "logs:*",
+        "kms:*"
       ],
       "Resource": "*"
     }

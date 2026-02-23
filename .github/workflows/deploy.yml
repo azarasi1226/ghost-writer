@@ -7,6 +7,15 @@ on:
       - "src/**"
       - "terraform/**"
   workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
 
 permissions:
   id-token: write
@@ -47,7 +56,19 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Apply
+        if: ${{ github.event_name == 'push' || inputs.action == 'apply' }}
         run: terraform apply -auto-approve
+        working-directory: terraform
+        env:
+          TF_VAR_wp_user: ${{ secrets.WP_USER }}
+          TF_VAR_wp_pass: ${{ secrets.WP_PASS }}
+          TF_VAR_gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          TF_VAR_gemini_model: ${{ vars.GEMINI_MODEL }}
+          TF_VAR_alert_email: ${{ vars.ALERT_EMAIL }}
+
+      - name: Terraform Destroy
+        if: ${{ inputs.action == 'destroy' }}
+        run: terraform destroy -auto-approve
         working-directory: terraform
         env:
           TF_VAR_wp_user: ${{ secrets.WP_USER }}
