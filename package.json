@@ -1,7 +1,6 @@
 {
   "type": "module",
   "scripts": {
-    "start": "tsx main.ts",
     "build": "esbuild main.ts --bundle --platform=node --format=esm --outfile=main.js",
     "test": "tsx -e \"import('./main.ts').then(m => m.handler())\""
   },
@@ -14,11 +13,9 @@
     "tough-cookie": "^6.0.0"
   },
   "devDependencies": {
-    "@types/cheerio": "^0.22.35",
     "@types/node": "^22.0.0",
-    "@types/node-fetch": "^2.6.13",
     "esbuild": "^0.25.12",
-"tsx": "^4.21.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

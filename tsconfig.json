@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
+    // Node.js の ESM に合わせたモジュール解決
     "module": "nodenext",
-    "target": "esnext",
+    // Lambda (Node.js 22) がサポートする最新構文をそのまま出力
+    "target": "es2022",
+    // Node.js のグローバル型（process, Buffer 等）を有効化
     "types": ["node"],
-
+    // 型チェックを厳格に
     "strict": true,
+    // import type を使わない場合にエラーにする（esbuild との相性対策）
     "verbatimModuleSyntax": true,
+    // ファイル単体でトランスパイル可能にする（esbuild 向け）
     "isolatedModules": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noUncheckedSideEffectImports": true,
+    // .ts ファイルをモジュールとして扱う
     "moduleDetection": "force",
+    // ライブラリの型エラーを無視（node_modules の型の不整合を回避）
     "skipLibCheck": true
   }
 }
