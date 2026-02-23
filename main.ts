@@ -4,6 +4,7 @@ import { CookieJar } from "tough-cookie";
 import fetchCookie from "fetch-cookie";
 import * as cheerio from "cheerio";
 import { GoogleGenAI } from "@google/genai";
+import { themes } from "./themes.js";
 
 const WP = "https://kojinjigyou.org";
 const USER = process.env.WP_USER!;
@@ -73,13 +74,14 @@ async function getNonce(): Promise<string> {
  * Gemini APIで記事を自動生成する（JSON形式でタイトル・本文を取得）
  */
 async function generateArticle(): Promise<Article> {
-  console.log("📝 記事を生成中...");
+  const theme = themes[Math.floor(Math.random() * themes.length)]!;
+  console.log(`📝 記事を生成中... テーマ:「${theme}」`);
 
   const prompt = `
 あなたはプロのブログライターです。
 以下のルールに従って記事を作成してください
 
-- テーマはコンピューターサイエンス、プログラミング、ソフトウェアアーキテクチャなどIT技術系全般とし、完全にランダムに選んでください
+- テーマは「${theme}」とする
 - タイトルと本文をJSON形式で返す
 - 本文はHTMLタグ（<h2>, <h3>, <p>, <ul>, <li> 等）を使って構造化する
 - 1000文字程度の記事にする
