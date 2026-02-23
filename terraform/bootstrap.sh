@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # S3 バケット・OIDC プロバイダー・GitHub Actions IAM ロールを作成する（初回のみ手動実行）
-# 実行前に AWS CLI のクレデンシャルが設定済みであること
+# 既存リソースはスキップするため、再実行しても安全
 
 set -euo pipefail
 
@@ -11,41 +11,54 @@ ROLE_NAME="ghost-writer-github-actions"
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-echo "=== S3 バケットを作成 ==="
-aws s3api create-bucket \
-  --bucket "$BUCKET" \
-  --region "$REGION" \
-  --create-bucket-configuration LocationConstraint="$REGION"
+# --- S3 バケット ---
+echo "=== S3 バケット ==="
+if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+  echo "  → 作成済みのためスキップ"
+else
+  aws s3api create-bucket \
+    --bucket "$BUCKET" \
+    --region "$REGION" \
+    --create-bucket-configuration LocationConstraint="$REGION"
+  echo "  → 作成しました"
+fi
 
-echo "=== バージョニングを有効化 ==="
 aws s3api put-bucket-versioning \
   --bucket "$BUCKET" \
   --versioning-configuration Status=Enabled
 
-echo "=== サーバーサイド暗号化を有効化 ==="
 aws s3api put-bucket-encryption \
   --bucket "$BUCKET" \
   --server-side-encryption-configuration '{
     "Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]
   }'
 
-echo "=== パブリックアクセスをブロック ==="
 aws s3api put-public-access-block \
   --bucket "$BUCKET" \
   --public-access-block-configuration \
     "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
 
-echo "=== GitHub Actions OIDC プロバイダーを作成 ==="
-OIDC_ARN=$(aws iam create-open-id-connect-provider \
-  --url "https://token.actions.githubusercontent.com" \
-  --client-id-list "sts.amazonaws.com" \
-  --thumbprint-list \
-    "6938fd4d98bab03faadb97b34396831e3780aea1" \
-    "1c58a3a8518e8759bf075b76b750d4f2df264fcd" \
-  --query OIDCProviderArn --output text)
+# --- OIDC プロバイダー ---
+echo "=== GitHub Actions OIDC プロバイダー ==="
+OIDC_ARN="arn:aws:iam::${ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
+if aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$OIDC_ARN" 2>/dev/null; then
+  echo "  → 作成済みのためスキップ"
+else
+  aws iam create-open-id-connect-provider \
+    --url "https://token.actions.githubusercontent.com" \
+    --client-id-list "sts.amazonaws.com" \
+    --thumbprint-list \
+      "6938fd4d98bab03faadb97b34396831e3780aea1" \
+      "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
+  echo "  → 作成しました"
+fi
 
-echo "=== GitHub Actions IAM ロールを作成 ==="
-TRUST_POLICY=$(cat <<EOF
+# --- IAM ロール ---
+echo "=== GitHub Actions IAM ロール ==="
+if aws iam get-role --role-name "$ROLE_NAME" 2>/dev/null | grep -q RoleName; then
+  echo "  → 作成済みのためスキップ"
+else
+  TRUST_POLICY=$(cat <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [{
@@ -64,12 +77,14 @@ TRUST_POLICY=$(cat <<EOF
 }
 EOF
 )
+  aws iam create-role \
+    --role-name "$ROLE_NAME" \
+    --assume-role-policy-document "$TRUST_POLICY"
+  echo "  → 作成しました"
+fi
 
-aws iam create-role \
-  --role-name "$ROLE_NAME" \
-  --assume-role-policy-document "$TRUST_POLICY"
-
-echo "=== デプロイ権限ポリシーをアタッチ ==="
+# --- IAM ポリシー（常に上書き） ---
+echo "=== デプロイ権限ポリシー ==="
 DEPLOY_POLICY=$(cat <<EOF
 {
   "Version": "2012-10-17",
@@ -126,6 +141,7 @@ aws iam put-role-policy \
   --role-name "$ROLE_NAME" \
   --policy-name "ghost-writer-deploy" \
   --policy-document "$DEPLOY_POLICY"
+echo "  → 適用しました"
 
 ROLE_ARN="arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}"
 
