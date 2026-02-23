@@ -139,7 +139,7 @@ DEPLOY_POLICY=$(cat <<EOF
       "Resource": "*"
     },
     {
-      "Sid": "Other"
+      "Sid": "Other",
       "Effect": "Allow",
       "Action": [
         "iam:*",
