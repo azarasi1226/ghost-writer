@@ -47,8 +47,8 @@ bash terraform/bootstrap.sh
 
 | 変数名             | 値                             |
 | ------------------ | ------------------------------ |
-| `TF_STATE_BUCKET`  | `ghost-writer-tfstate`         |
-| `TF_STATE_KEY`     | `terraform.tfstate`            |
+| `TF_STATE_BUCKET`  | bootstrap.shの出力地         |
+| `TF_STATE_KEY`     | bootstrap.shの出力地            |
 | `GEMINI_MODEL`     | `models/gemini-2.5-flash-lite` |
 | `ALERT_EMAIL`      | エラー通知先メールアドレス     |
 
@@ -80,14 +80,3 @@ push to main
 cd src
 npm test
 ```
-
----
-
-## 環境変数（Lambda）
-
-| 変数名          | 説明                   |
-| --------------- | ---------------------- |
-| `WP_USER`       | WordPress ユーザー名   |
-| `WP_PASS`       | WordPress パスワード   |
-| `GEMINI_API_KEY`| Gemini API キー        |
-| `GEMINI_MODEL`  | 使用する Gemini モデル |

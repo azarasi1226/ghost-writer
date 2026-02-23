@@ -1,8 +1,3 @@
-variable "aws_region" {
-  description = "AWSリージョン"
-  default     = "ap-northeast-1"
-}
-
 variable "wp_user" {
   description = "WordPressのログインユーザー名"
   sensitive   = true
@@ -20,7 +15,6 @@ variable "gemini_api_key" {
 
 variable "gemini_model" {
   description = "使用するGeminiモデル"
-  default     = "models/gemini-2.5-flash-lite"
 }
 
 variable "alert_email" {
