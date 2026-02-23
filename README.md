@@ -45,10 +45,12 @@ bash terraform/bootstrap.sh
 
 **Variables**（同じページの Variables タブ）:
 
-| 変数名         | 値                             |
-| -------------- | ------------------------------ |
-| `GEMINI_MODEL` | `models/gemini-2.5-flash-lite` |
-| `ALERT_EMAIL`  | エラー通知先メールアドレス     |
+| 変数名             | 値                             |
+| ------------------ | ------------------------------ |
+| `TF_STATE_BUCKET`  | `ghost-writer-tfstate`         |
+| `TF_STATE_KEY`     | `terraform.tfstate`            |
+| `GEMINI_MODEL`     | `models/gemini-2.5-flash-lite` |
+| `ALERT_EMAIL`      | エラー通知先メールアドレス     |
 
 ### 3. main ブランチに push
 

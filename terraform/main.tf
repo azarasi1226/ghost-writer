@@ -7,9 +7,8 @@ terraform {
     }
   }
 
+  # bucket / key は terraform init 時に -backend-config で渡す
   backend "s3" {
-    bucket       = "ghost-writer-tfstate"
-    key          = "terraform.tfstate"
     region       = "ap-northeast-1"
     encrypt      = true
     use_lockfile = true
