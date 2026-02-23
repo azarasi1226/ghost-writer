@@ -41,7 +41,6 @@ async function login(): Promise<void> {
   const $ = cheerio.load(html);
   const redirect = $('input[name="redirect_to"]').val();
 
-  console.log("redirect_to:", html);
   if (!redirect) throw new Error("redirect_to が取得できませんでした");
 
   const res: Response = await client(`${WP}/wp-login.php`, {
@@ -152,11 +151,11 @@ async function createPost(nonce: string, article: Article): Promise<void> {
     throw new Error(`記事投稿失敗: status=${res.status}`);
   }
 }
-  
+
 /**
  * 全体の処理フローを実行（ログイン→nonce取得→記事生成→投稿）
  */
-async function handler(){
+export async function handler(){
   await login();
   const nonce = await getNonce();
   const article = await generateArticle();

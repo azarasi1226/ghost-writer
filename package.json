@@ -1,12 +1,12 @@
 {
   "type": "module",
   "scripts": {
-    "start": "tsx main.ts"
+    "start": "tsx main.ts",
+    "build": "esbuild main.ts --bundle --platform=node --format=esm --outfile=main.js",
+    "test": "tsx -e \"import('./main.ts').then(m => m.handler())\""
   },
   "dependencies": {
     "@google/genai": "^1.41.0",
-    "@types/cheerio": "^0.22.35",
-    "@types/node-fetch": "^2.6.13",
     "cheerio": "^1.2.0",
     "dotenv": "^17.3.1",
     "fetch-cookie": "^3.2.0",
@@ -14,8 +14,11 @@
     "tough-cookie": "^6.0.0"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
+    "@types/cheerio": "^0.22.35",
+    "@types/node": "^22.0.0",
+    "@types/node-fetch": "^2.6.13",
+    "esbuild": "^0.25.12",
+"tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
