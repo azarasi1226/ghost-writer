@@ -102,24 +102,50 @@ DEPLOY_POLICY=$(cat <<EOF
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "ListBucket",
       "Effect": "Allow",
       "Action": ["s3:ListBucket"],
       "Resource": "arn:aws:s3:::$BUCKET"
     },
     {
+      "Sid": "ObjectOperations",
       "Effect": "Allow",
       "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
       "Resource": "arn:aws:s3:::$BUCKET/*"
     },
     {
+      "Sid": "LogGroup",
       "Effect": "Allow",
       "Action": [
-        "lambda:*",
+        "logs:CreateLogGroup",
+        "logs:DescribeLogGroups",
+        "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "Lambda",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:GetFunction",
+        "lambda:GetFunctionCodeSigningConfig",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:DeleteFunction",
+        "lambda:ListVersionsByFunction"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "Other"
+      "Effect": "Allow",
+      "Action": [
         "iam:*",
         "cloudwatch:*",
         "sns:*",
         "scheduler:*",
-        "logs:*",
         "kms:*"
       ],
       "Resource": "*"
