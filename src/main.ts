@@ -1,4 +1,6 @@
-import "dotenv/config";
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  await import("dotenv/config");
+}
 import fetch from "node-fetch";
 import { CookieJar } from "tough-cookie";
 import fetchCookie from "fetch-cookie";

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "build": "esbuild main.ts --bundle --platform=node --format=esm --outfile=../dist/main.js",
+    "build": "esbuild main.ts --bundle --platform=node --format=esm --external:dotenv --outfile=../dist/main.js",
     "test": "tsx -e \"import('./main.ts').then(m => m.handler())\""
   },
   "dependencies": {
