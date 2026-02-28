@@ -4,16 +4,16 @@
 全国個人事業主支援協会のブログを自動投稿するお助けツール
 
 * 三日に一度、6:00 ~ 10:00のランダムな時間に記事を投稿します。
-* テーマはit系な記事で1000文字程度です。
-* 何らかの原因で投稿に失敗した場合、メールに通知が来ます。
+* テーマはit系の記事で1000文字程度です。
+* 何らかの原因で投稿に失敗した場合、登録したメールに通知が来ます。
 
 ## 📁ディレクトリ構成
 
 ```
 ├── src/               # TypeScript ソースコード
-├── dist/              # ビルド成果物（git管理外）
+├── dist/              # ビルド成果物、lambdaで実際に実行される（git管理外）
 └── terraform/
-    ├── bootstrap.sh   # tfstate 管理用リソース作成スクリプト（初回のみ手動実行）
+    ├── bootstrap.sh   # terraform管理外のリソースを作成するスクリプト（一番最初に手動実行）
     └── *.tf           # AWS インフラ定義
 ```
 
@@ -22,16 +22,18 @@
 ## 🚀セットアップ
 ### 前提条件
 
-- AWS CLI（管理者権限のクレデンシャル設定済み）
+- AWS CLI
 - Terraform
 
 ### 1. bootstrap.sh を実行
-* s3 - terraform state保管用
-* iam role - github actionsからの認証用
+| リソース   | 用途                          |
+| ---------- | ----------------------------- |
+| S3         | terraform state保管用         |
+| IAM Role   | GitHub ActionsからTerraformでAWSリソースを作成するための認可用 |
 
 上記を作成するためのシェルスクリプトを実行します。
 ```bash
-bash terraform/bootstrap.sh --repo <owner>/<repo>
+bash terraform/bootstrap.sh --repo <リポジトリオーナー>/<リポジトリ名>
 # 例: bash terraform/bootstrap.sh --repo azarasi1226/ghost-writer
 ```
 
@@ -46,7 +48,7 @@ bash terraform/bootstrap.sh --repo <owner>/<repo>
 | `WP_PASS`        | WordPress パスワード                      |
 | `GEMINI_API_KEY` | Gemini API キー                           |
 
-**Variables**（同じページの Variables タブ）:
+**Variables**（Githubのレポジトリ → Settings → Secrets and variables → Actions → Variables）:
 
 | 変数名             | 値                             |
 | ------------------ | ------------------------------ |

@@ -38,13 +38,13 @@ BUCKET="ghost-writer-tfstate-${ACCOUNT_ID}"
 # --- S3 バケット ---
 echo "=== S3 バケット ==="
 if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
-  echo "  → 作成済みのためスキップ"
+  echo "  ⏭️ 作成済みのためスキップ"
 else
   aws s3api create-bucket \
     --bucket "$BUCKET" \
     --region "$REGION" \
     --create-bucket-configuration LocationConstraint="$REGION"
-  echo "  → 作成しました"
+  echo "  ✅ 作成しました"
 fi
 
 aws s3api put-bucket-tagging \
@@ -70,7 +70,7 @@ aws s3api put-public-access-block \
 echo "=== GitHub Actions OIDC プロバイダー ==="
 OIDC_ARN="arn:aws:iam::${ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
 if aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$OIDC_ARN" 2>/dev/null; then
-  echo "  → 作成済みのためスキップ"
+  echo "  ⏭️ 作成済みのためスキップ"
 else
   aws iam create-open-id-connect-provider \
     --url "https://token.actions.githubusercontent.com" \
@@ -78,7 +78,7 @@ else
     --thumbprint-list \
       "6938fd4d98bab03faadb97b34396831e3780aea1" \
       "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
-  echo "  → 作成しました"
+  echo "  ✅ 作成しました"
 fi
 
 aws iam tag-open-id-connect-provider \
@@ -88,7 +88,7 @@ aws iam tag-open-id-connect-provider \
 # --- IAM ロール ---
 echo "=== GitHub Actions IAM ロール ==="
 if aws iam get-role --role-name "$ROLE_NAME" 2>/dev/null | grep -q RoleName; then
-  echo "  → 作成済みのためスキップ"
+  echo "  ⏭️ 作成済みのためスキップ"
 else
   TRUST_POLICY=$(cat <<EOF
 {
@@ -112,7 +112,7 @@ EOF
   aws iam create-role \
     --role-name "$ROLE_NAME" \
     --assume-role-policy-document "$TRUST_POLICY"
-  echo "  → 作成しました"
+  echo "  ✅ 作成しました"
 fi
 
 aws iam tag-role \
@@ -186,12 +186,16 @@ aws iam put-role-policy \
   --role-name "$ROLE_NAME" \
   --policy-name "ghost-writer-deploy" \
   --policy-document "$DEPLOY_POLICY"
-echo "  → 適用しました"
+echo "  ✅ 適用しました"
 
 ROLE_ARN="arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}"
 
 echo ""
-echo "# GitHub Secrets / Variables に設定する値"
-echo "AWS_ROLE_ARN    (Secret)   = $ROLE_ARN"
-echo "TF_STATE_BUCKET (Variable) = $BUCKET"
-echo "TF_STATE_KEY    (Variable) = terraform.tfstate"
+echo "✅ 完了！以下の値を GitHub に設定してください"
+echo "┌──────────────────┬──────────┬──────────────────────────────────────────────────────────────┐"
+echo "│ 名前             │ 種別     │ 値                                                           │"
+echo "├──────────────────┼──────────┼──────────────────────────────────────────────────────────────┤"
+printf "│ %-16s │ %-8s │ %-60s │\n" "AWS_ROLE_ARN" "Secret" "$ROLE_ARN"
+printf "│ %-16s │ %-8s │ %-60s │\n" "TF_STATE_BUCKET" "Variable" "$BUCKET"
+printf "│ %-16s │ %-8s │ %-60s │\n" "TF_STATE_KEY" "Variable" "terraform.tfstate"
+echo "└──────────────────┴──────────┴──────────────────────────────────────────────────────────────┘"
