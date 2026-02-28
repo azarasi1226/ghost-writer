@@ -22,6 +22,7 @@
 ## 🚀セットアップ
 ### 前提条件
 
+- [Google AI Studio](https://aistudio.google.com/) に登録しており、GeminiのAPIキーを取得している (無料だよ)
 - AWS CLI
 - Terraform
 
@@ -37,13 +38,24 @@ bash terraform/bootstrap.sh --repo <リポジトリオーナー>/<リポジト�
 # 例: bash terraform/bootstrap.sh --repo azarasi1226/ghost-writer
 ```
 
+出力値をコピーし、保存してください。
+```bash
+✅ すべてのフェーズが完了しました！以下の値をコピーして保存してください。
+┌──────────────────┬──────────────────────────────────────────────────────────────┐
+│ env_name         │ env_name                                                     │
+├──────────────────┼──────────────────────────────────────────────────────────────┤
+│ AWS_ROLE_ARN     │ arn:aws:iam::062519534890:role/ghost-writer-github-actions   │
+│ TF_STATE_BUCKET  │ ghost-writer-tfstate-062519534890                            │
+│ TF_STATE_KEY     │ terraform.tfstate                                            │
+└──────────────────┴──────────────────────────────────────────────────────────────┘
+```
+
 ### 2. GitHub Secrets / Variables を設定
 
 **Secrets**（Githubのレポジトリ → Settings → Secrets and variables → Actions → Secrets）:
 
 | シークレット名   | 値                                        |
 | ---------------- | ----------------------------------------- |
-| `AWS_ROLE_ARN`   | bootstrap.sh の出力値                     |
 | `WP_USER`        | WordPress ユーザー名                      |
 | `WP_PASS`        | WordPress パスワード                      |
 | `GEMINI_API_KEY` | Gemini API キー                           |
@@ -52,9 +64,10 @@ bash terraform/bootstrap.sh --repo <リポジトリオーナー>/<リポジト�
 
 | 変数名             | 値                             |
 | ------------------ | ------------------------------ |
+| `AWS_ROLE_ARN`   | bootstrap.sh の出力値                     |
 | `TF_STATE_BUCKET`  | bootstrap.sh の出力値          |
 | `TF_STATE_KEY`     | bootstrap.sh の出力値          |
-| `GEMINI_MODEL`     | `models/gemini-2.5-flash-lite`(なんでもいんだけどこれがおすすめ) |
+| `GEMINI_MODEL`     | `models/gemini-2.5-flash-lite`<br>(好きなモデルでOK、おすすめは↑) |
 | `ALERT_EMAIL`      | エラー通知先メールアドレス     |
 
 ### 3. GitHub Actions を手動実行
@@ -62,16 +75,18 @@ GitHub リポジトリの Actions タブ → Deploy → Run workflow → `apply`
 
 ### 4. SNS メール通知の承認
 デプロイ後に通知先メールアドレス宛に AWS から確認メールが届く。
-メール内のリンクをクリックして購読を承認する（これをしないとエラー通知が届かない）。
+メール内のリンクをクリックして購読を承認する。  
+（これをしないとエラー通知が届かない）
 
 ---
 
-## 開発フロー
-* `src/` または `terraform/` を変更して main ブランチに push すると自動デプロイされる。
-* 手動でデプロイしたい場合は Actions タブから Run workflow で `apply` / `destroy` を選択して実行できる。
+## 🧑‍💻開発フロー
+### デプロイ方法
+* `main`ブランチに変更が加わるとするとで自動デプロイされます。
+* 手動でデプロイしたい場合は Actions タブから Run workflow で `apply` を選択
+* もしAWS環境を削除したい場合は、手動デプロイ時に `destroy`を選択 
 
 ### ローカルで動作確認したい場合
-
 /src/内に入り、`.env.example` をコピーして `.env` を作成し、各種環境変数を登録する
 
 ```bash
