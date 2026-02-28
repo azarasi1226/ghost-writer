@@ -42,7 +42,7 @@ bash terraform/bootstrap.sh --repo <リポジトリオーナー>/<リポジト�
 ```bash
 ✅ すべてのフェーズが完了しました！以下の値をコピーして保存してください。
 ┌──────────────────┬──────────────────────────────────────────────────────────────┐
-│ env_name         │ env_name                                                     │
+│ env_name         │ env_value                                                    │
 ├──────────────────┼──────────────────────────────────────────────────────────────┤
 │ AWS_ROLE_ARN     │ arn:aws:iam::062519534890:role/ghost-writer-github-actions   │
 │ TF_STATE_BUCKET  │ ghost-writer-tfstate-062519534890                            │
