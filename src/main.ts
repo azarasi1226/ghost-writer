@@ -112,16 +112,30 @@ async function generateArticle(): Promise<Article> {
 }
 
 /**
- * 生成した記事をWordPress REST APIで投稿する
+ * 現在時刻から 0〜2時間後のランダムな時刻を ISO8601 形式で返す
+ *
+ */
+function randomPublishDate(): string {
+  const offsetMs = Math.floor(Math.random() * 2 * 60 * 60_000);
+  return new Date(Date.now() + offsetMs).toISOString();
+}
+
+/**
+ * 生成した記事をWordPress REST APIで予約投稿する
+ * （現在〜2時間後のランダムな時刻としている理由は、毎回同じ時間に投稿されてたら人間が書いた感がなくなるから）
  */
 async function createPost(nonce: string, article: Article): Promise<void> {
+  const publishDate = randomPublishDate();
+  const displayTime = new Date(publishDate).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+  console.log(`📅 予約投稿時刻: ${displayTime}`);
+
   const res = await client(`${WP}/wp-json/wp/v2/posts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-WP-Nonce": nonce
     },
-    body: JSON.stringify({ ...article, status: "publish" })
+    body: JSON.stringify({ ...article, status: "future", date: publishDate })
   });
 
   if (res.ok) {

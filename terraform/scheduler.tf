@@ -30,13 +30,12 @@ resource "aws_scheduler_schedule" "wp_auto" {
   name       = "ghost-writer-schedule"
   group_name = "default"
 
-  # 3日ごとの6時に起点を置き、flexible_time_windowで6〜10時のランダムな時刻に実行
+  # 3日ごとの6:00 JSTに実行（投稿時刻のランダム化はLambda側で行う）
   schedule_expression          = "cron(0 6 */3 * ? *)"
   schedule_expression_timezone = "Asia/Tokyo"
 
   flexible_time_window {
-    mode                      = "FLEXIBLE"
-    maximum_window_in_minutes = 240 # 最大4時間ずらす → 6:00〜10:00 JSTの間に実行
+    mode = "OFF"
   }
 
   target {
