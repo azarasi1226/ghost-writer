@@ -1,7 +1,7 @@
 # 👻ghost-writer
 [![Deploy](https://github.com/azarasi1226/ghost-writer/actions/workflows/deploy.yml/badge.svg)](https://github.com/azarasi1226/ghost-writer/actions/workflows/deploy.yml)  
 
-全国個人事業主支援協会のブログを自動投稿するお助けツール
+ブログを自動投稿するお助けツール
 
 * 三日に一度、6:00 ~ 10:00のランダムな時間に記事を投稿します。
 * テーマはit系の記事で1000文字程度です。
